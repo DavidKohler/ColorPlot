@@ -8,8 +8,7 @@ ColorPlot.py
 
 import os, sys
 import matplotlib.pyplot as plt
-import numpy as np
-import math
+import math, random
 
 from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
@@ -33,8 +32,8 @@ def prompt_options():
     Asks User to select what they want to do
     '''
     degreeSeparation = -1
-    print("Enter 1 for single plot")
-    print("Enter 2 for multiple views of plot")
+    print("Enter 1 to view single plot")
+    print("Enter 2 to save multiple angles of plot")
     choice = input()
     while((choice != "1") and (choice != "2")):
         print("Please enter a valid input")
@@ -42,13 +41,27 @@ def prompt_options():
     if choice == "2":
         print("Enter degree spacing for rotation of plot (btwn 1 and 360)")
         print("Ex. Enter 1 for complete 360 view, 5 for "
-                +"rotations at every 5 degrees, 90 for "
+                +"rotations at \nevery 5 degrees, 90 for "
                 +"rotations at every 90 degrees, etc.")
         degreeSeparation = int(input())
-        while((degreeSeparation < 1) and (degreeSeparation > 360)):
+        while((degreeSeparation < 1) or (degreeSeparation > 360)):
             print("Please enter a valid input")
             degreeSeparation = int(input())
     return degreeSeparation
+
+def get_size():
+    '''
+    Asks the user if they want to do a sample or the full graph
+    '''
+    print("Enter 1 to make plot from smaller pixel sample (faster)")
+    print("Enter 2 to make plot from set of all pixels (much slower) ")
+    choice = input()
+    while((choice != "1") and (choice != "2")):
+        print("Please enter a valid input")
+        choice = input()
+    if choice == "1":
+        return 1
+    return 2
 
 def run(imgName):
     '''
@@ -58,7 +71,12 @@ def run(imgName):
     '''
     im = open_image(imgName)
     degreeSeparation = prompt_options()
-    pixels = set([(r, g, b) for (r, g, b) in im.getdata()])
+    allPixels = [(r, g, b) for (r, g, b) in im.getdata()]
+    sz = get_size()
+    if sz == 1:
+        pixels = random.sample(allPixels, 5000)
+    else:
+        pixels = set(allPixels)
 
     fig = plt.figure(figsize=(10,8))
     ax = fig.add_subplot(111, projection='3d')
@@ -71,23 +89,24 @@ def run(imgName):
     ax.set_ylabel('g', color='green')
     ax.set_zlabel('b', color='blue')
 
-    for item in pixels:
-        pix01 = ((item[0]/255), (item[1]/255), (item[2]/255))
-        ax.plot([item[0]], [item[1]], [item[2]],
+    for pixel in pixels:
+        pix01 = ((pixel[0]/255), (pixel[1]/255), (pixel[2]/255))
+        ax.plot([pixel[0]], [pixel[1]], [pixel[2]],
                 markerfacecolor=pix01, markeredgecolor=pix01,
-                marker='o', markersize=1)
+                marker='o', markersize=3)
 
     if degreeSeparation == -1:
+        plt.savefig(imgName.split('.')[0]+'Plot')
         plt.show()
     else:
         directory = ('./'+(imgName.split('.')[0])+'/')
         if not os.path.exists(directory):
             os.makedirs(directory)
-            os.chdir('./'+(imgName.split('.')[0])+'/')
+        os.chdir('./'+(imgName.split('.')[0])+'/')
 
-            for angle in range(0, 361, degreeSeparation):
-                ax.view_init(30, angle)
-                plt.savefig('fig'+str(angle)+'.png')
+        for angle in range(0, 361, degreeSeparation):
+            ax.view_init(30, angle)
+            plt.savefig('f'+str(angle)+'deg.png')
 
 if __name__ == '__main__':
     '''
