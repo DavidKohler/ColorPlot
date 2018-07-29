@@ -6,18 +6,19 @@ Author: David Kohler
 ColorPlot.py
 '''
 
-import os
-from matplotlib import cm
-
-import sys
+import os, sys
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import animation
 from PIL import Image
 
 def open_image(filename):
+    '''
+    Opens image in RGB format
+    Prints size and number of pixels
+    '''
     image = Image.open(filename)
     if image == None:
         print("Specified input file " + filename + " cannot be opened.")
@@ -27,8 +28,36 @@ def open_image(filename):
               + " total pixels.")
         return image.convert("RGB")
 
+def prompt_options():
+    '''
+    Asks User to select what they want to do
+    '''
+    degreeSeparation = -1
+    print("Enter 1 for single plot")
+    print("Enter 2 for multiple views of plot")
+    choice = input()
+    while((choice != "1") and (choice != "2")):
+        print("Please enter a valid input")
+        choice = input()
+    if choice == "2":
+        print("Enter degree spacing for rotation of plot (btwn 1 and 360)")
+        print("Ex. Enter 1 for complete 360 view, 5 for "
+                +"rotations at every 5 degrees, 90 for "
+                +"rotations at every 90 degrees, etc.")
+        degreeSeparation = int(input())
+        while((degreeSeparation < 1) and (degreeSeparation > 360)):
+            print("Please enter a valid input")
+            degreeSeparation = int(input())
+    return degreeSeparation
+
 def run(imgName):
+    '''
+    Creates 3D plot of colors using (r,g,b) values
+    Create new directory and saves plot from series
+    of different angles
+    '''
     im = open_image(imgName)
+    degreeSeparation = prompt_options()
     pixels = set([(r, g, b) for (r, g, b) in im.getdata()])
 
     fig = plt.figure(figsize=(10,8))
@@ -48,20 +77,22 @@ def run(imgName):
                 markerfacecolor=pix01, markeredgecolor=pix01,
                 marker='o', markersize=1)
 
-    #plt.show()
+    if degreeSeparation == -1:
+        plt.show()
+    else:
+        directory = ('./'+(imgName.split('.')[0])+'/')
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            os.chdir('./'+(imgName.split('.')[0])+'/')
 
-    directory = ('./'+(imgName.split('.')[0])+'/')
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    os.chdir('./'+(imgName.split('.')[0])+'/')
-
-    for angle in range(0, 361, 5):
-        ax.view_init(30, angle)
-        plt.savefig('fig'+str(angle)+'.png')
-
+            for angle in range(0, 361, degreeSeparation):
+                ax.view_init(30, angle)
+                plt.savefig('fig'+str(angle)+'.png')
 
 if __name__ == '__main__':
-    #Passes a picture to be run in the program
+    '''
+    Takes in photo from command line
+    '''
     if len(sys.argv) < 2:
         print('Usage: py ColorPlot [imagename]')
         sys.exit()
