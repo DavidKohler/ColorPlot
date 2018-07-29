@@ -51,17 +51,14 @@ def prompt_options():
 
 def get_size():
     '''
-    Asks the user if they want to do a sample or the full graph
+    Asks the user for number of points to plot
     '''
-    print("Enter 1 to make plot from smaller pixel sample (faster)")
-    print("Enter 2 to make plot from set of all pixels (much slower) ")
+    print("Enter number of points to plot, between 1 and 25000")
     choice = input()
-    while((choice != "1") and (choice != "2")):
-        print("Please enter a valid input")
+    while((int(choice) < 1) or ((int(choice) > 25000))):
+        print("Please enter a number between 1 and 25000")
         choice = input()
-    if choice == "1":
-        return 1
-    return 2
+    return int(choice)
 
 def run(imgName):
     '''
