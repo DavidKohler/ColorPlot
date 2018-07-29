@@ -27,14 +27,18 @@ def open_image(filename):
               + " total pixels.")
         return image.convert("RGB")
 
-def get_size():
+def get_size(totalSize):
     '''
     Asks the user for number of points to plot
     '''
     print("Enter number of points to plot, between 1 and 25000")
     choice = input()
-    while((int(choice) < 1) or ((int(choice) > 25000))):
-        print("Please enter a number between 1 and 25000")
+    while((int(choice) < 1) or ((int(choice) > 25000))
+            or ((int(choice) >= totalSize))):
+        if (int(choice) >= totalSize):
+            print("Cannot use number larger than size of image")
+        else:
+            print("Please enter a number between 1 and 25000")
         choice = input()
     return int(choice)
 
@@ -47,7 +51,7 @@ def run(imgName):
     im = open_image(imgName)
     #degreeSeparation = prompt_options()
     allPixels = [(r, g, b) for (r, g, b) in im.getdata()]
-    points = get_size()
+    points = get_size(len(im.getdata()))
     if sz == 1:
         pixels = random.sample(allPixels, points)
     else:
