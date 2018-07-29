@@ -27,28 +27,6 @@ def open_image(filename):
               + " total pixels.")
         return image.convert("RGB")
 
-def prompt_options():
-    '''
-    Asks User to select what they want to do
-    '''
-    degreeSeparation = -1
-    print("Enter 1 to view single plot")
-    print("Enter 2 to save multiple angles of plot")
-    choice = input()
-    while((choice != "1") and (choice != "2")):
-        print("Please enter a valid input")
-        choice = input()
-    if choice == "2":
-        print("Enter degree spacing for rotation of plot (btwn 1 and 360)")
-        print("Ex. Enter 1 for complete 360 view, 5 for "
-                +"rotations at \nevery 5 degrees, 90 for "
-                +"rotations at every 90 degrees, etc.")
-        degreeSeparation = int(input())
-        while((degreeSeparation < 1) or (degreeSeparation > 360)):
-            print("Please enter a valid input")
-            degreeSeparation = int(input())
-    return degreeSeparation
-
 def get_size():
     '''
     Asks the user for number of points to plot
@@ -67,11 +45,11 @@ def run(imgName):
     of different angles
     '''
     im = open_image(imgName)
-    degreeSeparation = prompt_options()
+    #degreeSeparation = prompt_options()
     allPixels = [(r, g, b) for (r, g, b) in im.getdata()]
-    sz = get_size()
+    points = get_size()
     if sz == 1:
-        pixels = random.sample(allPixels, 5000)
+        pixels = random.sample(allPixels, points)
     else:
         pixels = set(allPixels)
 
