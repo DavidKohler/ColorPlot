@@ -6,11 +6,15 @@ Author: David Kohler
 ColorPlot.py
 '''
 
+import plotly.graph_objs as go
+import plotly.plotly as py
 import os, sys
-import matplotlib.pyplot as plt
-import math, random
+#import matplotlib.pyplot as plt
+#import numpy as np
+#import math
+import random
 
-from mpl_toolkits.mplot3d import Axes3D
+#from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
 def open_image(filename):
@@ -33,9 +37,11 @@ def get_size(totalSize):
     '''
     print("Enter number of points to plot, between 1 and 25000")
     choice = input()
-    while((int(choice) < 1) or ((int(choice) > 25000))
-            or ((int(choice) >= totalSize))):
-        if (int(choice) >= totalSize):
+    while((not choice.isdigit()) or (int(choice) < 1)
+            or ((int(choice) > 25000)) or ((int(choice) >= totalSize))):
+        if ((not choice.isdigit())):
+            print("Please enter a number between 1 and 25000")
+        elif (int(choice) >= totalSize):
             print("Cannot use number larger than size of image")
         else:
             print("Please enter a number between 1 and 25000")
@@ -49,14 +55,23 @@ def run(imgName):
     of different angles
     '''
     im = open_image(imgName)
-    #degreeSeparation = prompt_options()
     allPixels = [(r, g, b) for (r, g, b) in im.getdata()]
     points = get_size(len(im.getdata()))
-    if sz == 1:
-        pixels = random.sample(allPixels, points)
-    else:
-        pixels = set(allPixels)
+    pixels = random.sample(allPixels, points)
 
+    print("Please enter number for desired color space:")
+    print("1 : RGB\n"+
+            "2 : HSL\n"+
+            "3 : HSV\n"+
+            "4 : sRGB\n"+
+            "5 : CMYK")
+    #TODO more color spaces
+    cSpace = input()
+    while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 5 )):
+        print("Please enter valid number")
+        cSpace = input()
+
+    '''
     fig = plt.figure(figsize=(10,8))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -74,9 +89,10 @@ def run(imgName):
                 markerfacecolor=pix01, markeredgecolor=pix01,
                 marker='o', markersize=3)
 
-    if degreeSeparation == -1:
-        plt.savefig(imgName.split('.')[0]+'Plot')
-        plt.show()
+    #plt.savefig(imgName.split('.')[0]+'Plot')
+    plt.show()
+    '''
+    '''
     else:
         directory = ('./'+(imgName.split('.')[0])+'/')
         if not os.path.exists(directory):
@@ -86,6 +102,8 @@ def run(imgName):
         for angle in range(0, 361, degreeSeparation):
             ax.view_init(30, angle)
             plt.savefig('f'+str(angle)+'deg.png')
+    '''
+
 
 if __name__ == '__main__':
     '''
