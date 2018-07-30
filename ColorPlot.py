@@ -60,23 +60,36 @@ def prompt_CS(imgName):
     print("1 : RGB\n"+
             "2 : HSL\n"+
             "3 : HSV\n"+
-            "4 : sRGB\n"+
-            "5 : CMY")
+            "4 : HWB\n"+
+            "5 : CMY\n"+
+            "6 : XYZ\n"+
+            "7 : Lab\n"+
+            "8 : Lch\n"+
+            "9 : HCG")
     #TODO more color spaces
     cSpace = input("+>")
-    while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 5 )):
+    img = imgName.split('.')[0]
+    while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 9 )):
         print("Please enter valid number")
         cSpace = input("+>")
     if cSpace == '1':
-        plot_rgb(pixels, imgName.split('.')[0])
+        plot_rgb(pixels, img)
     elif cSpace == '2':
-        plot_hsl(pixels, imgName.split('.')[0])
+        plot_hsl(pixels, img)
     elif cSpace == '3':
-        plot_hsv(pixels, imgName.split('.')[0])
+        plot_hsv(pixels, img)
     elif cSpace == '4':
-        plot_srgb(pixels, imgName.split('.')[0])
+        plot_hwb(pixels, img)
     elif cSpace == '5':
-        plot_cmy(pixels, imgName.split('.')[0])
+        plot_cmy(pixels, img)
+    elif cSpace == '6':
+        plot_xyz(pixels, img)
+    elif cSpace == '7':
+        plot_lab(pixels, img)
+    elif cSpace == '8':
+        plot_lch(pixels, img)
+    elif cSpace == '9':
+        plot_hcg(pixels, img)
 
 def plot_rgb(pix, img):
     '''
@@ -202,12 +215,99 @@ def plot_hsv(pix, img):
     '''
     Plots colors in HSV color space in plotly 3D Scatter plot
     '''
-    print("a")
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        Cmax = max(R, G, B)
+        Cmin = min(R, G, B)
+        delta = Cmax - Cmin
+        V = Cmax
+        if delta == 0:
+            H = 0
+        elif Cmax == R:
+            H = 60 * (((G - B)/delta) % 6)
+        elif Cmax == G:
+            H = 60 * (((B - R)/delta) + 2)
+        elif Cmax == B:
+            H = 60 * (((R - G)/delta) + 4)
+        if delta == 0:
+            S = 0
+        else:
+            S = delta/Cmax
 
-def plot_srgb(pix, img):
+        x.append(H)
+        y.append(S*100)
+        z.append(V*100)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "H",
+                range= [0, 360]
+                ),
+            yaxis=dict(
+                title= "S",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "V",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'HSV')
+
+def plot_hwb(pix, img):
     '''
-    Plots colors in sRGB color space in plotly 3D Scatter plot
+    Plots colors in HWB color space in plotly 3D Scatter plot
     '''
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        Cmax = max(R, G, B)
+        Cmin = min(R, G, B)
+        delta = Cmax - Cmin
+        V = Cmax
+        if delta == 0:
+            H = 0
+        elif Cmax == R:
+            H = 60 * (((G - B)/delta) % 6)
+        elif Cmax == G:
+            H = 60 * (((B - R)/delta) + 2)
+        elif Cmax == B:
+            H = 60 * (((R - G)/delta) + 4)
+        if delta == 0:
+            S = 0
+        else:
+            S = delta/Cmax
+
+        x.append(H)
+        y.append(S*100)
+        z.append(V*100)
     print("a")
 
 def plot_cmy(pix, img):
@@ -262,6 +362,18 @@ def plot_cmy(pix, img):
     )
     fig = go.Figure(data=data, layout=layout)
     py.plot(fig, filename=img+'CMY')
+
+def plot_xyz(pix, img):
+    print('a')
+
+def plot_lab(pix, img):
+    print('a')
+
+def plot_lch(pix, img):
+    print('a')
+
+def plot_hcg(pix, img):
+    print('a')
 
 if __name__ == '__main__':
     '''
