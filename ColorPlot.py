@@ -11,8 +11,7 @@ import plotly.graph_objs as go
 import plotly.plotly as py
 #import matplotlib.pyplot as plt
 #import numpy as np
-#import math
-import random
+import random, math
 
 from PIL import Image
 
@@ -405,7 +404,76 @@ def plot_cmy(pix, img):
     py.plot(fig, filename=img+'CMY')
 
 def plot_xyz(pix, img):
-    print('a')
+    '''
+    Plots colors in CMY color space in plotly 3D Scatter plot
+    '''
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        if R > 0.04045:
+            R = math.pow(((R + 0.055)/ 1.055 ), 2.4)
+        else:
+            R = R / 12.92
+        if G > 0.04045:
+            G = math.pow(((G + 0.055)/ 1.055 ), 2.4)
+        else:
+            G = G / 12.92
+        if B > 0.04045:
+            B = math.pow(((B + 0.055)/ 1.055 ), 2.4)
+        else:
+            B = B / 12.92
+        R *= 100
+        G *= 100
+        B *= 100
+
+        X = (R * 0.4124) + (G * 0.3576) + (B * 0.1805)
+        Y = (R * 0.2126) + (G * 0.7152) + (B * 0.0722)
+        Z = (R * 0.0193) + (G * 0.1192) + (B * 0.9505)
+
+        x.append(X)
+        y.append(Y)
+        z.append(Z)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "X",
+                range= [0, 100]
+                ),
+            yaxis=dict(
+                title= "Y",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "Z",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'XYZ')
 
 def plot_lab(pix, img):
     print('a')
