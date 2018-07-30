@@ -304,11 +304,52 @@ def plot_hwb(pix, img):
             S = 0
         else:
             S = delta/Cmax
+        W = (1 - S) * V
+        B = 1 - V
 
         x.append(H)
-        y.append(S*100)
-        z.append(V*100)
-    print("a")
+        y.append(W*100)
+        z.append(B*100)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "H",
+                range= [0, 360]
+                ),
+            yaxis=dict(
+                title= "W",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "B",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'HWB')
 
 def plot_cmy(pix, img):
     '''
