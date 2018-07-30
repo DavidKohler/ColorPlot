@@ -6,15 +6,14 @@ Author: David Kohler
 ColorPlot.py
 '''
 
+import os, sys
 import plotly.graph_objs as go
 import plotly.plotly as py
-import os, sys
 #import matplotlib.pyplot as plt
 #import numpy as np
 #import math
 import random
 
-#from mpl_toolkits.mplot3d import Axes3D
 from PIL import Image
 
 def open_image(filename):
@@ -36,7 +35,7 @@ def get_size(totalSize):
     Asks the user for number of points to plot
     '''
     print("Enter number of points to plot, between 1 and 25000")
-    choice = input()
+    choice = input("+>")
     while((not choice.isdigit()) or (int(choice) < 1)
             or ((int(choice) > 25000)) or ((int(choice) >= totalSize))):
         if ((not choice.isdigit())):
@@ -45,14 +44,12 @@ def get_size(totalSize):
             print("Cannot use number larger than size of image")
         else:
             print("Please enter a number between 1 and 25000")
-        choice = input()
+        choice = input("+>")
     return int(choice)
 
-def run(imgName):
+def prompt_CS(imgName):
     '''
-    Creates 3D plot of colors using (r,g,b) values
-    Create new directory and saves plot from series
-    of different angles
+    Prompts user for color space to create plot in
     '''
     im = open_image(imgName)
     allPixels = [(r, g, b) for (r, g, b) in im.getdata()]
@@ -66,44 +63,95 @@ def run(imgName):
             "4 : sRGB\n"+
             "5 : CMYK")
     #TODO more color spaces
-    cSpace = input()
+    cSpace = input("+>")
     while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 5 )):
         print("Please enter valid number")
-        cSpace = input()
+        cSpace = input("+>")
+    if cSpace == '1':
+        plot_rgb(pixels, imgName.split('.')[0])
+    elif cSpace == '2':
+        plot_hsl(pixels, imgName.split('.')[0])
+    elif cSpace == '3':
+        plot_hsv(pixels, imgName.split('.')[0])
+    elif cSpace == '4':
+        plot_srgb(pixels, imgName.split('.')[0])
+    elif cSpace == '5':
+        plot_cmyk(pixels, imgName.split('.')[0])
 
+def plot_rgb(pix, img):
     '''
-    fig = plt.figure(figsize=(10,8))
-    ax = fig.add_subplot(111, projection='3d')
-
-    ax.set_xlim(-5, 260)
-    ax.set_ylim(-5, 260)
-    ax.set_zlim(-5, 260)
-
-    ax.set_xlabel('r', color='red')
-    ax.set_ylabel('g', color='green')
-    ax.set_zlabel('b', color='blue')
-
-    for pixel in pixels:
-        pix01 = ((pixel[0]/255), (pixel[1]/255), (pixel[2]/255))
-        ax.plot([pixel[0]], [pixel[1]], [pixel[2]],
-                markerfacecolor=pix01, markeredgecolor=pix01,
-                marker='o', markersize=3)
-
-    #plt.savefig(imgName.split('.')[0]+'Plot')
-    plt.show()
+    Plots colors in RGB color space in plotly 3D Scatter plot
     '''
-    '''
-    else:
-        directory = ('./'+(imgName.split('.')[0])+'/')
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        os.chdir('./'+(imgName.split('.')[0])+'/')
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        x.append(item[0])
+        y.append(item[1])
+        z.append(item[2])
 
-        for angle in range(0, 361, degreeSeparation):
-            ax.view_init(30, angle)
-            plt.savefig('f'+str(angle)+'deg.png')
-    '''
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "R",
+                range= [0, 255]
+                ),
+            yaxis=dict(
+                title= "G",
+                range= [0, 255]
+                ),
+            zaxis=dict(
+                title= "B",
+                range= [0, 255]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'RGB')
 
+def plot_hsl(pix, img):
+    '''
+    Plots colors in HSL color space in plotly 3D Scatter plot
+    '''
+    print("a")
+
+def plot_hsv(pix, img):
+    '''
+    Plots colors in HSV color space in plotly 3D Scatter plot
+    '''
+    print("a")
+
+def plot_srgb(pix, img):
+    '''
+    Plots colors in sRGB color space in plotly 3D Scatter plot
+    '''
+    print("a")
+
+def plot_cmyk(pix, img):
+    '''
+    Plots colors in CMYK color space in plotly 3D Scatter plot
+    '''
+    print("a")
 
 if __name__ == '__main__':
     '''
@@ -112,4 +160,4 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('Usage: py ColorPlot [imagename]')
         sys.exit()
-    run(sys.argv[1])
+    prompt_CS(sys.argv[1])
