@@ -61,7 +61,7 @@ def prompt_CS(imgName):
             "2 : HSL\n"+
             "3 : HSV\n"+
             "4 : sRGB\n"+
-            "5 : CMYK")
+            "5 : CMY")
     #TODO more color spaces
     cSpace = input("+>")
     while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 5 )):
@@ -76,7 +76,7 @@ def prompt_CS(imgName):
     elif cSpace == '4':
         plot_srgb(pixels, imgName.split('.')[0])
     elif cSpace == '5':
-        plot_cmyk(pixels, imgName.split('.')[0])
+        plot_cmy(pixels, imgName.split('.')[0])
 
 def plot_rgb(pix, img):
     '''
@@ -133,7 +133,70 @@ def plot_hsl(pix, img):
     '''
     Plots colors in HSL color space in plotly 3D Scatter plot
     '''
-    print("a")
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        Cmax = max(R, G, B)
+        Cmin = min(R, G, B)
+        delta = Cmax - Cmin
+        L = (Cmax + Cmin)/2
+        if delta == 0:
+            H = 0
+        elif Cmax == R:
+            H = 60 * (((G - B)/delta) % 6)
+        elif Cmax == G:
+            H = 60 * (((B - R)/delta) + 2)
+        elif Cmax == B:
+            H = 60 * (((R - G)/delta) + 4)
+        if delta == 0:
+            S = 0
+        else:
+            S = delta/(1 - abs((2 * L) - 1))
+
+        x.append(H)
+        y.append(S*100)
+        z.append(L*100)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "H",
+                range= [0, 360]
+                ),
+            yaxis=dict(
+                title= "S",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "L",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'HSL')
 
 def plot_hsv(pix, img):
     '''
@@ -147,11 +210,58 @@ def plot_srgb(pix, img):
     '''
     print("a")
 
-def plot_cmyk(pix, img):
+def plot_cmy(pix, img):
     '''
-    Plots colors in CMYK color space in plotly 3D Scatter plot
+    Plots colors in CMY color space in plotly 3D Scatter plot
     '''
-    print("a")
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0], item[1], item[2]
+        C, M, Y = 1 - (R/255), 1 - (G/255), 1 - (B/255)
+        x.append(C*100)
+        y.append(M*100)
+        z.append(Y*100)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "C",
+                range= [0, 100]
+                ),
+            yaxis=dict(
+                title= "M",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "Y",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'CMY')
 
 if __name__ == '__main__':
     '''
