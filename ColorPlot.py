@@ -58,10 +58,9 @@ def prompt_CS(imgName):
             "2 : HSL\n"+
             "3 : HSV\n"+
             "4 : HWB\n"+
-            "5 : HCG\n"+
-            "6 : CMY\n"+
-            "7 : XYZ\n"+
-            "8 : CIELAB")
+            "5 : CMY\n"+
+            "6 : XYZ\n"+
+            "7 : CIELAB")
     cSpace = input("+>")
     img = imgName.split('.')[0]
     while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 8 )):
@@ -76,12 +75,10 @@ def prompt_CS(imgName):
     elif cSpace == '4':
         plot_hwb(pixels, img)
     elif cSpace == '5':
-        plot_hcg(pixels, img)
-    elif cSpace == '6':
         plot_cmy(pixels, img)
-    elif cSpace == '7':
+    elif cSpace == '6':
         plot_xyz(pixels, img)
-    elif cSpace == '8':
+    elif cSpace == '7':
         plot_lab(pixels, img)
 
 def plot_rgb(pix, img):
@@ -343,84 +340,6 @@ def plot_hwb(pix, img):
     )
     fig = go.Figure(data=data, layout=layout)
     py.plot(fig, filename=img+'HWB')
-
-def plot_hcg(pix, img):
-    '''
-    Plots colors in HCG color space in plotly 3D Scatter plot
-    '''
-    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
-    x,y,z = [], [], []
-    for item in pix:
-        R, G, B = item[0]/255, item[1]/255, item[2]/255
-        Cmax = max(R, G, B)
-        Cmin = min(R, G, B)
-        delta = Cmax - Cmin
-        L = (Cmax + Cmin)/2
-        if delta == 0:
-            H = 0
-        elif Cmax == R:
-            H = 60 * (((G - B)/delta) % 6)
-        elif Cmax == G:
-            H = 60 * (((B - R)/delta) + 2)
-        elif Cmax == B:
-            H = 60 * (((R - G)/delta) + 4)
-        if delta == 0:
-            S = 0
-        else:
-            S = delta/(1 - abs((2 * L) - 1))
-
-        F = 0
-
-        if (L < 0.5):
-            C = 2 * S * L
-        else:
-            C = 2 * S * (1 - L)
-        if (C < 1):
-            F = (L - 0.5 * C) / (1 - C)
-
-        x.append(H)
-        y.append(C * 100)
-        z.append(F * 100)
-
-    trace0 = go.Scatter3d(
-        x = x,
-        y = y,
-        z = z,
-        mode='markers',
-        marker=dict(
-            size=4,
-            color = colors,
-            opacity=0.8
-        )
-    )
-    data = [trace0]
-    layout = go.Layout(
-        title=img,
-        height=550,
-        width=700,
-        scene=dict(
-            xaxis=dict(
-                title= "H",
-                range= [-180, 180]
-                ),
-            yaxis=dict(
-                title= "C",
-                range= [0, 100]
-                ),
-            zaxis=dict(
-                title= "G",
-                range= [0, 100]
-                ),
-            ),
-        margin=dict(
-            l=0,
-            r=0,
-            b=25,
-            t=50
-        )
-    )
-    fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'HCG')
 
 def plot_cmy(pix, img):
     '''
