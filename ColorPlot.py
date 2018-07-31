@@ -9,8 +9,6 @@ ColorPlot.py
 import os, sys
 import plotly.graph_objs as go
 import plotly.plotly as py
-#import matplotlib.pyplot as plt
-#import numpy as np
 import random, math
 
 from PIL import Image
@@ -60,15 +58,13 @@ def prompt_CS(imgName):
             "2 : HSL\n"+
             "3 : HSV\n"+
             "4 : HWB\n"+
-            "5 : CMY\n"+
-            "6 : XYZ\n"+
-            "7 : Lab\n"+
-            "8 : Lch\n"+
-            "9 : HCG")
-    #TODO more color spaces
+            "5 : HCG\n"+
+            "6 : CMY\n"+
+            "7 : XYZ\n"+
+            "8 : CIELAB")
     cSpace = input("+>")
     img = imgName.split('.')[0]
-    while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 9 )):
+    while ((not cSpace.isdigit()) or (int(cSpace) < 1) or (int(cSpace) > 8 )):
         print("Please enter valid number")
         cSpace = input("+>")
     if cSpace == '1':
@@ -80,15 +76,13 @@ def prompt_CS(imgName):
     elif cSpace == '4':
         plot_hwb(pixels, img)
     elif cSpace == '5':
-        plot_cmy(pixels, img)
-    elif cSpace == '6':
-        plot_xyz(pixels, img)
-    elif cSpace == '7':
-        plot_lab(pixels, img)
-    elif cSpace == '8':
-        plot_lch(pixels, img)
-    elif cSpace == '9':
         plot_hcg(pixels, img)
+    elif cSpace == '6':
+        plot_cmy(pixels, img)
+    elif cSpace == '7':
+        plot_xyz(pixels, img)
+    elif cSpace == '8':
+        plot_lab(pixels, img)
 
 def plot_rgb(pix, img):
     '''
@@ -297,7 +291,7 @@ def plot_hwb(pix, img):
             H = 60 * (((G - B)/delta) % 6)
         elif Cmax == G:
             H = 60 * (((B - R)/delta) + 2)
-        elif Cmax == B:
+        else:
             H = 60 * (((R - G)/delta) + 4)
         if delta == 0:
             S = 0
@@ -349,6 +343,84 @@ def plot_hwb(pix, img):
     )
     fig = go.Figure(data=data, layout=layout)
     py.plot(fig, filename=img+'HWB')
+
+def plot_hcg(pix, img):
+    '''
+    Plots colors in HCG color space in plotly 3D Scatter plot
+    '''
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        Cmax = max(R, G, B)
+        Cmin = min(R, G, B)
+        delta = Cmax - Cmin
+        L = (Cmax + Cmin)/2
+        if delta == 0:
+            H = 0
+        elif Cmax == R:
+            H = 60 * (((G - B)/delta) % 6)
+        elif Cmax == G:
+            H = 60 * (((B - R)/delta) + 2)
+        elif Cmax == B:
+            H = 60 * (((R - G)/delta) + 4)
+        if delta == 0:
+            S = 0
+        else:
+            S = delta/(1 - abs((2 * L) - 1))
+
+        F = 0
+
+        if (L < 0.5):
+            C = 2 * S * L
+        else:
+            C = 2 * S * (1 - L)
+        if (C < 1):
+            F = (L - 0.5 * C) / (1 - C)
+
+        x.append(H)
+        y.append(C * 100)
+        z.append(F * 100)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "H",
+                range= [-180, 180]
+                ),
+            yaxis=dict(
+                title= "C",
+                range= [0, 100]
+                ),
+            zaxis=dict(
+                title= "G",
+                range= [0, 100]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'HCG')
 
 def plot_cmy(pix, img):
     '''
@@ -405,7 +477,7 @@ def plot_cmy(pix, img):
 
 def plot_xyz(pix, img):
     '''
-    Plots colors in CMY color space in plotly 3D Scatter plot
+    Plots colors in XYZ color space in plotly 3D Scatter plot
     '''
     colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
     x,y,z = [], [], []
@@ -476,13 +548,98 @@ def plot_xyz(pix, img):
     py.plot(fig, filename=img+'XYZ')
 
 def plot_lab(pix, img):
-    print('a')
+    '''
+    Plots colors in CIELAB color space in plotly 3D Scatter plot
+    '''
+    colors = ['rgb('+str(r)+','+str(g)+','+str(b)+')' for (r,g,b) in pix]
+    x,y,z = [], [], []
+    for item in pix:
+        R, G, B = item[0]/255, item[1]/255, item[2]/255
+        if R > 0.04045:
+            R = math.pow(((R + 0.055)/ 1.055 ), 2.4)
+        else:
+            R = R / 12.92
+        if G > 0.04045:
+            G = math.pow(((G + 0.055)/ 1.055 ), 2.4)
+        else:
+            G = G / 12.92
+        if B > 0.04045:
+            B = math.pow(((B + 0.055)/ 1.055 ), 2.4)
+        else:
+            B = B / 12.92
+        R *= 100
+        G *= 100
+        B *= 100
 
-def plot_lch(pix, img):
-    print('a')
+        X = (R * 0.4124) + (G * 0.3576) + (B * 0.1805)
+        Y = (R * 0.2126) + (G * 0.7152) + (B * 0.0722)
+        Z = (R * 0.0193) + (G * 0.1192) + (B * 0.9505)
 
-def plot_hcg(pix, img):
-    print('a')
+        X = X / 95.047
+        Y = Y / 100
+        Z = Z / 108.883
+
+        if X > 0.008856:
+            fx = (math.pow(X, 1/3))
+        else:
+            fx = ((903.3 * X) + 16) / 116
+        if Y > 0.008856:
+            fy = (math.pow(Y, 1/3))
+        else:
+            fy = ((903.3 * Y) + 16) / 116
+        if Z > 0.008856:
+            fz = (math.pow(Z, 1/3))
+        else:
+            fz = ((903.3 * Z) + 16) / 116
+
+        L = (116 * fy) - 16
+        a = 500 * (fx - fy)
+        b = 200 * (fy - fz)
+
+        x.append(L)
+        y.append(a)
+        z.append(b)
+
+    trace0 = go.Scatter3d(
+        x = x,
+        y = y,
+        z = z,
+        mode='markers',
+        marker=dict(
+            size=4,
+            color = colors,
+            opacity=0.8
+        )
+    )
+    data = [trace0]
+    layout = go.Layout(
+        title=img,
+        height=550,
+        width=700,
+        scene=dict(
+            xaxis=dict(
+                title= "L*",
+                range= [0, 100]
+                ),
+            yaxis=dict(
+                title= "a*",
+                range= [-86.185, 98.254]
+                ),
+            zaxis=dict(
+                title= "b*",
+                range= [-107.863, 94.482]
+                ),
+            ),
+        margin=dict(
+            l=0,
+            r=0,
+            b=25,
+            t=50
+        )
+    )
+    fig = go.Figure(data=data, layout=layout)
+    py.plot(fig, filename=img+'Lab')
+
 
 if __name__ == '__main__':
     '''
