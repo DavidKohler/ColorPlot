@@ -8,8 +8,8 @@ ColorPlot.py
 
 import os, sys
 import plotly.graph_objs as go
-import plotly.plotly as py
 import random, math
+import plotly
 
 from PIL import Image
 
@@ -106,8 +106,6 @@ def plot_rgb(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "R",
@@ -130,7 +128,7 @@ def plot_rgb(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'RGB')
+    plotly.offline.plot(fig, filename=img+'RGB')
 
 def plot_hsl(pix, img):
     '''
@@ -175,8 +173,6 @@ def plot_hsl(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "H",
@@ -199,7 +195,7 @@ def plot_hsl(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'HSL')
+    plotly.offline.plot(fig, filename=img+'HSL')
 
 def plot_hsv(pix, img):
     '''
@@ -244,8 +240,6 @@ def plot_hsv(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "H",
@@ -268,7 +262,7 @@ def plot_hsv(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'HSV')
+    plotly.offline.plot(fig, filename=img+'HSV')
 
 def plot_hwb(pix, img):
     '''
@@ -315,8 +309,6 @@ def plot_hwb(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "H",
@@ -339,7 +331,7 @@ def plot_hwb(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'HWB')
+    plotly.offline.plot(fig, filename=img+'HWB')
 
 def plot_cmy(pix, img):
     '''
@@ -368,8 +360,6 @@ def plot_cmy(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "C",
@@ -392,7 +382,7 @@ def plot_cmy(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'CMY')
+    plotly.offline.plot(fig, filename=img+'CMY')
 
 def plot_xyz(pix, img):
     '''
@@ -440,8 +430,6 @@ def plot_xyz(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "X",
@@ -464,7 +452,7 @@ def plot_xyz(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'XYZ')
+    plotly.offline.plot(fig, filename=img+'XYZ')
 
 def plot_lab(pix, img):
     '''
@@ -533,8 +521,6 @@ def plot_lab(pix, img):
     data = [trace0]
     layout = go.Layout(
         title=img,
-        height=550,
-        width=700,
         scene=dict(
             xaxis=dict(
                 title= "L*",
@@ -557,7 +543,7 @@ def plot_lab(pix, img):
         )
     )
     fig = go.Figure(data=data, layout=layout)
-    py.plot(fig, filename=img+'Lab')
+    plotly.offline.plot(fig, filename=img+'Lab')
 
 
 if __name__ == '__main__':
