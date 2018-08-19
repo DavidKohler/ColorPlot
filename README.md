@@ -21,6 +21,12 @@ functionality. Visit my website to view examples of the plots. Designed for use 
 
 Outputs and takes input from terminal
 
+## Example
+
+Below is an example 3D plot generated for Starry Night
+
+![Starry Night Plot](ExamplePlot.png)
+
 ## Authors
 
 David Kohler
