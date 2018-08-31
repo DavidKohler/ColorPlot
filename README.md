@@ -13,6 +13,7 @@ functionality. Visit my website to view examples of the plots. Designed for use 
 1. Copy the repository 
 2. Make sure you have Python version 3.6 or later
 3. Run:
+
 `pip install matplotlib`
 
 `pip install seaborn`
